@@ -22,7 +22,7 @@ class TaskTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.blue.shade100,
+        color: _taskModel.isDone ? Colors.green.shade100 : Colors.blue.shade100,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

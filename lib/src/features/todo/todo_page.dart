@@ -61,15 +61,6 @@ class _TodoPageState extends State<TodoPage> {
       ),
       appBar: AppBar(
         title: const Text('To-Do List'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.person,
-              color: Colors.blue,
-            ),
-          ),
-        ],
       ),
       body: BlocConsumer<TodoCubit, TodoState>(
         listener: (context, state) {
@@ -93,24 +84,79 @@ class _TodoPageState extends State<TodoPage> {
                 child: CircularProgressIndicator.adaptive(),
               );
             default:
+              final taskViewList = state.status == TodoStateStatus.filtered
+                  ? state.filteredTasks
+                  : state.tasks;
               return Container(
                 padding: const EdgeInsets.all(16),
-                child: ListView.separated(
-                  itemCount: state.tasks.length,
-                  separatorBuilder: (context, index) => const SizedBox(
-                    height: 8,
-                  ),
-                  itemBuilder: (context, index) {
-                    final task = state.tasks[index];
-                    return TaskTile(
-                      taskModel: task,
-                      onDelete: () => controller.removeTask(task.id!),
-                      onEdit: addOrUpdateTask,
-                      onCheckedPress: (task) {
-                        controller.editTask(task);
-                      },
-                    );
-                  },
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              onPressed: () {
+                                controller.deleteAllCompletedTasks();
+                              },
+                              child: const Text(
+                                'Remover tarefas completas',
+                                maxLines: 2,
+                                textAlign: TextAlign.center,
+                              )),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            decoration:
+                                const InputDecoration(label: Text('Filtrar')),
+                            value: 'ALL',
+                            isDense: true,
+                            icon: const Icon(Icons.filter_alt_sharp),
+                            hint: const Text('Filtrar'),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'ALL',
+                                child: Text('Mostrar todos'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'COMPLETED',
+                                child: Text('Completados'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'PENDING',
+                                child: Text('Pendentes'),
+                              ),
+                            ],
+                            onChanged: controller.filter,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: taskViewList.length,
+                        separatorBuilder: (context, index) => const SizedBox(
+                          height: 8,
+                        ),
+                        itemBuilder: (context, index) {
+                          final task = taskViewList[index];
+                          return TaskTile(
+                            taskModel: task,
+                            onDelete: () => controller.removeTask(task.id!),
+                            onEdit: addOrUpdateTask,
+                            onCheckedPress: (task) {
+                              controller.editTask(task);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               );
           }

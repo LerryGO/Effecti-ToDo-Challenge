@@ -82,4 +82,31 @@ class TodoCubit extends Cubit<TodoState> {
       },
     );
   }
+
+  void filter(String? status) {
+    switch (status) {
+      case 'COMPLETED':
+        final filteredtasks = [
+          ...state.tasks.where((element) => element.isDone)
+        ];
+        emit(state.copyWith(
+            status: TodoStateStatus.filtered, filteredTasks: filteredtasks));
+      case 'PENDING':
+        final filteredtasks = [
+          ...state.tasks.where((element) => !element.isDone)
+        ];
+        emit(state.copyWith(
+            status: TodoStateStatus.filtered, filteredTasks: filteredtasks));
+      default:
+        emit(state.copyWith(
+          status: TodoStateStatus.loaded,
+          filteredTasks: [],
+        ));
+    }
+  }
+
+  Future<void> deleteAllCompletedTasks() async {
+    await _taskService.deleteAllCompletedTasks();
+    load();
+  }
 }

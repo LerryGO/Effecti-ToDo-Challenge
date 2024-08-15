@@ -79,14 +79,16 @@ class TaskService {
     }
   }
 
-  Future<Either<ServiceException, Nil>> deleteAllTasks() async {
+  Future<Either<ServiceException, Nil>> deleteAllCompletedTasks() async {
     try {
       await localDatabase.db.then(
-        (db) async => await db.writeTxn(
-          () async {
-            return await db.taskModels.clear();
-          },
-        ),
+        (db) async => await db.writeTxn(() async {
+          final tasksToDelete =
+              await db.taskModels.filter().isDoneEqualTo(true).findAll();
+
+          await db.taskModels
+              .deleteAll(tasksToDelete.map((task) => task.id!).toList());
+        }),
       );
 
       return Success(nil);
