@@ -96,7 +96,9 @@ class _CreateTaskState extends State<CreateTask> {
                         Navigator.of(context).pop(dto);
                     }
                   },
-                  child: const Text("Adicionar nova tarefa"),
+                  child: Text(widget.task != null
+                      ? "Finalizar edição"
+                      : "Adicionar nova tarefa"),
                 ),
               ],
             ),
