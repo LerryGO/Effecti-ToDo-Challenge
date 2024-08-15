@@ -59,4 +59,44 @@ class TaskService {
         return Failure(ServiceException(message: 'Erro ao remover tarefa'));
     }
   }
+
+  Future<Either<ServiceException, int>> editTask(TaskModel task) async {
+    try {
+      final id = await localDatabase.db.then(
+        (db) async => await db.writeTxn(
+          () async {
+            return await db.taskModels.put(task);
+          },
+        ),
+      );
+
+      return Success(id);
+    } on Exception catch (e, s) {
+      log('Erro ao editar tarefa no banco local', error: e, stackTrace: s);
+      return Failure(
+        ServiceException(message: 'Erro ao editar tarefa no banco local'),
+      );
+    }
+  }
+
+  Future<Either<ServiceException, Nil>> deleteAllTasks() async {
+    try {
+      await localDatabase.db.then(
+        (db) async => await db.writeTxn(
+          () async {
+            return await db.taskModels.clear();
+          },
+        ),
+      );
+
+      return Success(nil);
+    } on Exception catch (e, s) {
+      log('Erro ao deletar todas tarefas no banco local',
+          error: e, stackTrace: s);
+      return Failure(
+        ServiceException(
+            message: 'Erro ao deletar todas tarefas no banco local'),
+      );
+    }
+  }
 }

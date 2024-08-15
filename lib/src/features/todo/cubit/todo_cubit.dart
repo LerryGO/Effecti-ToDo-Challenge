@@ -57,4 +57,29 @@ class TodoCubit extends Cubit<TodoState> {
             status: TodoStateStatus.error, errorMessage: exception.message));
     }
   }
+
+  Future<void> editTask(TaskModel task) async {
+    emit(state.copyWith(status: TodoStateStatus.loading));
+    final result = await _taskService.editTask(task);
+    result.when(
+      failure: (exception) {
+        emit(state.copyWith(
+            status: TodoStateStatus.error, errorMessage: exception.message));
+      },
+      success: (value) {
+        final taskList = [...state.tasks];
+        final index = taskList.indexWhere(
+          (element) => element.id == task.id,
+        );
+
+        if (index != -1) {
+          taskList[index] = task;
+          emit(state.copyWith(status: TodoStateStatus.loaded, tasks: taskList));
+        } else {
+          taskList.add(task.copyWith(id: value));
+          emit(state.copyWith(status: TodoStateStatus.loaded, tasks: taskList));
+        }
+      },
+    );
+  }
 }

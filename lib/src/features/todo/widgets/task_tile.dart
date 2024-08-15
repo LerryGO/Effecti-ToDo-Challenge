@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:todo_challenge/src/features/todo/create_task.dart';
-import 'package:todo_challenge/src/features/todo/cubit/todo_cubit.dart';
 
 import '../../../models/task_model.dart';
+import '../create_task.dart';
 
 class TaskTile extends StatelessWidget {
   final TaskModel _taskModel;
-  const TaskTile({super.key, required TaskModel taskModel})
+  final VoidCallback onDelete;
+  final Function(({TaskModel task, String type})) onEdit;
+  final Function(TaskModel) onCheckedPress;
+
+  const TaskTile(
+      {super.key,
+      required TaskModel taskModel,
+      required this.onDelete,
+      required this.onEdit,
+      required this.onCheckedPress})
       : _taskModel = taskModel;
 
   @override
@@ -51,7 +58,14 @@ class TaskTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Checkbox.adaptive(value: _taskModel.isDone, onChanged: (value) {})
+              Checkbox.adaptive(
+                value: _taskModel.isDone,
+                onChanged: (value) {
+                  onCheckedPress(
+                    _taskModel.copyWith(isDone: value),
+                  );
+                },
+              ),
             ],
           ),
           const SizedBox(
@@ -67,14 +81,19 @@ class TaskTile extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amber,
                     ),
-                    onPressed: () {
-                      Navigator.of(context).push(
+                    onPressed: () async {
+                      final ({TaskModel task, String type})? result =
+                          await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => CreateTask(
                             task: _taskModel,
                           ),
                         ),
                       );
+
+                      if (result != null) {
+                        onEdit(result);
+                      }
                     },
                     child: const Text('Editar tarefa'),
                   ),
@@ -87,10 +106,7 @@ class TaskTile extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
-                    onPressed: () {
-                      Provider.of<TodoCubit>(context, listen: false)
-                          .removeTask(_taskModel.id!);
-                    },
+                    onPressed: onDelete,
                     child: const Text('Remover tarefa'),
                   ),
                 ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todo_challenge/src/core/ui/helpers/messages.dart';
 
+import '../../core/ui/helpers/messages.dart';
 import '../../models/task_model.dart';
+import 'create_task.dart';
 import 'cubit/todo_cubit.dart';
 import 'widgets/task_tile.dart';
 
@@ -22,6 +23,16 @@ class _TodoPageState extends State<TodoPage> {
     super.initState();
   }
 
+  void addOrUpdateTask(({TaskModel task, String type}) task) {
+    switch (task.type) {
+      case 'ADD':
+        controller.addTask(task.task);
+
+      case 'UPDATE':
+        controller.editTask(task.task);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,17 +40,16 @@ class _TodoPageState extends State<TodoPage> {
         shape: const CircleBorder(),
         backgroundColor: Colors.white,
         foregroundColor: Colors.blue,
-        onPressed: () {
-          controller.addTask(TaskModel(
-              title: 'Primeira tarefa',
-              description: 'Aqui é a primeira tarefa',
-              createdAt: DateTime.now(),
-              isDone: false));
-          /*  Navigator.of(context).push(
+        onPressed: () async {
+          final ({TaskModel task, String type})? result =
+              await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => const CreateTask(),
             ),
-          ); */
+          );
+          if (result != null) {
+            addOrUpdateTask(result);
+          }
         },
         child: const CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -92,7 +102,14 @@ class _TodoPageState extends State<TodoPage> {
                   ),
                   itemBuilder: (context, index) {
                     final task = state.tasks[index];
-                    return TaskTile(taskModel: task);
+                    return TaskTile(
+                      taskModel: task,
+                      onDelete: () => controller.removeTask(task.id!),
+                      onEdit: addOrUpdateTask,
+                      onCheckedPress: (task) {
+                        controller.editTask(task);
+                      },
+                    );
                   },
                 ),
               );
