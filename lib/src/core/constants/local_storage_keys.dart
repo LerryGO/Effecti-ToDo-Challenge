@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 sealed class LocalStorageKeys {
   static const accessToken = 'ACCESS_TOKEN_KEY';
+  static const user = 'USER';
 }
 
 sealed class ColorsConstants {

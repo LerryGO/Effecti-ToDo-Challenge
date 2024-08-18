@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../features/auth/login/login_page.dart';
-import '../features/todo/cubit/todo_route.dart';
+import '../features/auth/login/login_route.dart';
+import '../features/auth/register/register_route.dart';
+import '../features/todo/todo_route.dart';
 
 abstract class AppRoutes {
   static const String login = '/auth/login';
@@ -10,7 +11,8 @@ abstract class AppRoutes {
   static const String createTask = '/todo/create';
 
   static final Map<String, WidgetBuilder> routes = {
-    login: (context) => const LoginPage(),
+    login: (context) => LoginRoute.page,
+    userRegister: (context) => RegisterRoute.page,
     todo: (context) => TodoRoute.page,
   };
 }

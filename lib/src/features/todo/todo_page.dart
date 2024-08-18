@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_challenge/src/features/todo/widgets/todo_drawer.dart';
 
 import '../../core/ui/helpers/messages.dart';
 import '../../models/task_model.dart';
 import 'create_task.dart';
-import 'cubit/todo_cubit.dart';
+import 'cubits/todo_cubit.dart';
 import 'widgets/task_tile.dart';
 
 class TodoPage extends StatefulWidget {
@@ -36,6 +37,7 @@ class _TodoPageState extends State<TodoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const TodoDrawer(),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
         backgroundColor: Colors.white,

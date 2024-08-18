@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_challenge/src/data/app_data.dart';
 
 import 'restClient/rest_client.dart';
 
@@ -15,6 +16,10 @@ class ApplicationBinding extends StatelessWidget {
           Provider<RestClient>(
             create: (context) => RestClient(),
           ),
+          Provider(
+            create: (context) => AppData(),
+          ),
+          
         ],
         builder: (context, _) {
           return child;

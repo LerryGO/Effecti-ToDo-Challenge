@@ -16,10 +16,11 @@ class AuthInterceptor extends Interceptor {
 
     headers.remove(authHeaderKey);
     if (extra case {'DIO_AUTH_KEY': true}) {
-      final sp = await SharedPreferences.getInstance();
+      final sp = SharedPreferencesAsync();
+      final token = await sp.getString(LocalStorageKeys.accessToken);
       headers.addAll(
         {
-          authHeaderKey: 'Bearer ${sp.getString(LocalStorageKeys.accessToken)}',
+          authHeaderKey: 'Bearer $token',
         },
       );
     }
