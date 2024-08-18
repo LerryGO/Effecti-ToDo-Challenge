@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:todo_challenge/src/core/extensions/formatter_extension.dart';
+import 'package:todo_challenge/src/features/todo/widgets/date_picker.dart';
 import 'package:validatorless/validatorless.dart';
 
 import '../../models/task_model.dart';
@@ -16,11 +18,14 @@ class _CreateTaskState extends State<CreateTask> {
   final formKey = GlobalKey<FormState>();
   final titleEC = TextEditingController();
   final descriptionEC = TextEditingController();
+  final dueDateEC = TextEditingController();
+  var addDueDate = false;
 
   @override
   void dispose() {
     titleEC.dispose();
     descriptionEC.dispose();
+    dueDateEC.dispose();
     super.dispose();
   }
 
@@ -30,6 +35,11 @@ class _CreateTaskState extends State<CreateTask> {
     if (task != null) {
       titleEC.text = task.title;
       descriptionEC.text = task.description;
+
+      if (widget.task?.dueDate != null) {
+        dueDateEC.text = task.dueDate!.toIso8601String().toStringCompleteDate;
+        addDueDate = true;
+      }
     }
     super.initState();
   }
@@ -71,6 +81,42 @@ class _CreateTaskState extends State<CreateTask> {
                 const SizedBox(
                   height: 32,
                 ),
+                Row(
+                  children: [
+                    Checkbox.adaptive(
+                      value: addDueDate,
+                      onChanged: (value) {
+                        setState(() {
+                          addDueDate = !addDueDate;
+                        });
+                      },
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Adicionar data de vencimento',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Offstage(
+                  offstage: !addDueDate,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DatePickerWidget(
+                      initialDate: widget.task?.dueDate != null
+                          ? widget.task?.dueDate!.toIso8601String().toDateTime
+                          : DateTime.now(),
+                      dateController: dueDateEC,
+                      enableValidation: addDueDate,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
@@ -82,12 +128,15 @@ class _CreateTaskState extends State<CreateTask> {
                         break;
                       case true:
                         final task = widget.task;
+                        final dueDateFormat =
+                            addDueDate ? dueDateEC.text.toDateTime : null;
                         final dto = (
                           task: TaskModel(
                             id: task?.id,
                             title: titleEC.text,
                             description: descriptionEC.text,
                             createdAt: task?.createdAt ?? DateTime.now(),
+                            dueDate: addDueDate ? dueDateFormat : null,
                             isDone: task?.isDone ?? false,
                           ),
                           type: task != null ? 'UPDATE' : 'ADD',

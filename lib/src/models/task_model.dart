@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -13,35 +13,39 @@ class TaskModel {
   final String title;
   final String description;
   final DateTime createdAt;
+  final DateTime? dueDate;
   final bool isDone;
 
   TaskModel(
-      { this.id,
-      this.cloudId,
+      {required this.id,
       required this.title,
       required this.description,
       required this.createdAt,
-      required this.isDone});
+      this.dueDate,
+      required this.isDone,
+      this.cloudId});
 
   TaskModel copyWith(
       {int? id,
-      int? cloudId,
+      ValueGetter<int?>? cloudId,
       String? title,
       String? description,
       DateTime? createdAt,
+      DateTime? dueDate,
       bool? isDone}) {
     return TaskModel(
         id: id ?? this.id,
-        cloudId: cloudId ?? this.cloudId,
+        cloudId: cloudId != null ? cloudId() : this.cloudId,
         title: title ?? this.title,
         description: description ?? this.description,
         createdAt: createdAt ?? this.createdAt,
+        dueDate: dueDate ?? this.dueDate,
         isDone: isDone ?? this.isDone);
   }
 
   @override
   String toString() {
-    return 'TaskModel(id: $id, cloudId: $cloudId, title: $title, description: $description, createdAt: $createdAt, isDone: $isDone)';
+    return 'TaskModel(id: $id, cloudId: $cloudId, title: $title, description: $description, createdAt: $createdAt, dueDate: $dueDate, isDone: $isDone)';
   }
 
   factory TaskModel.fromJson(Map<String, dynamic> json) =>
