@@ -44,16 +44,29 @@ class UserRepositoryImpl extends UserRepository {
 
   @override
   Future<Either<RepositoryException, Nil>> register(
-      ({String email, String name, String password}) userData) {
-    // TODO: implement register
-    throw UnimplementedError();
+      ({String email, String name, String password}) userData) async {
+    try {
+      await restClient.unAuth.post(
+        '/users',
+        data: {
+          'name': userData.name,
+          'email': userData.email,
+          'password': userData.password,
+        },
+      );
+      return Success(nil);
+    } on DioException catch (e, s) {
+      log('Erro ao registrar usuário', error: e, stackTrace: s);
+      return Failure(RepositoryException(message: 'Erro ao registrar usuário'));
+    }
   }
 
   @override
   Future<Either<RepositoryException, UserModel>> getUser() async {
     try {
-      final Response(:List data) = await restClient.auth.get('/users');
-      final user = UserModel.fromJson(data.first);
+      final Response(:data) = await restClient.auth.get('/me');
+      print(data);
+      final user = UserModel.fromJson(data);
       return Success(user);
     } on DioException catch (e, s) {
       log('Erro ao buscar usuário', error: e, stackTrace: s);

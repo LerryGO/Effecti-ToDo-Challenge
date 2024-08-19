@@ -5,7 +5,7 @@ import 'package:todo_challenge/src/features/todo/widgets/todo_drawer.dart';
 import '../../core/ui/helpers/messages.dart';
 import '../../models/task_model.dart';
 import 'create_task.dart';
-import 'cubits/todo_cubit.dart';
+import 'cubit/todo_cubit.dart';
 import 'widgets/task_tile.dart';
 
 class TodoPage extends StatefulWidget {

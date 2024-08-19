@@ -9,10 +9,10 @@ class UserRegisterServiceImpl implements UserRegisterService {
   final UserRepository _userRepository;
   final UserLoginService _userLoginService;
 
-  UserRegisterServiceImpl(
-      {required UserRepository userRepository,
-      required UserLoginService userLoginService})
-      : _userRepository = userRepository,
+  UserRegisterServiceImpl({
+    required UserRepository userRepository,
+    required UserLoginService userLoginService,
+  })  : _userRepository = userRepository,
         _userLoginService = userLoginService;
 
   @override
@@ -23,7 +23,19 @@ class UserRegisterServiceImpl implements UserRegisterService {
     switch (registerResult) {
       case Success():
         await _userLoginService.execute(userData.email, userData.password);
-        return Success(nil);
+        final result =
+            await _userLoginService.execute(userData.email, userData.password);
+        return result.when(
+          failure: (exception) => Failure(
+            ServiceException(
+              message: exception.message,
+            ),
+          ),
+          success: (value) {
+            return Success(nil);
+          },
+        );
+
       case Failure(:final exception):
         return Failure(
           ServiceException(message: exception.message),

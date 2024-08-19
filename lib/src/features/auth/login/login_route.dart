@@ -37,6 +37,7 @@ class LoginRoute {
           ),
           Provider<AuthCubit>(
             create: (context) => AuthCubit(
+              userRegisterService: context.read<UserRegisterService>(),
               userLoginService: context.read<UserLoginService>(),
             ),
           ),

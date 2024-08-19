@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_challenge/src/core/ui/helpers/form_helper.dart';
 import 'package:todo_challenge/src/features/auth/cubit/auth_cubit.dart';
 import 'package:validatorless/validatorless.dart';
 
@@ -58,6 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   TextFormField(
                     controller: emailEC,
+                    onTapOutside: (_) => context.unfocus(),
                     decoration: const InputDecoration(
                       label: Text('E-mail'),
                     ),
@@ -73,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   TextFormField(
                     controller: passwordEC,
+                    onTapOutside: (_) => context.unfocus(),
                     decoration: const InputDecoration(
                       label: Text('Senha'),
                     ),

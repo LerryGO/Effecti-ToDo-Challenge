@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../data/app_data.dart';
 import '../../services/task_service.dart';
 import 'todo_page.dart';
-import 'cubits/todo_cubit.dart';
+import 'cubit/todo_cubit.dart';
 
 class TodoRoute {
   TodoRoute._();
