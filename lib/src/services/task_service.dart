@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:isar/isar.dart';
+import 'package:todo_challenge/src/core/exceptions/repository_exception.dart';
+import 'package:todo_challenge/src/repositories/task/task_repository.dart';
 
 import '../core/exceptions/service_exception.dart';
 import '../core/fp/either.dart';
@@ -10,6 +12,9 @@ import 'database/local_database.dart';
 
 class TaskService {
   final LocalDatabase localDatabase = LocalDatabase();
+  final TaskRepository taskRepository;
+
+  TaskService({required this.taskRepository});
 
   Future<Either<ServiceException, List<TaskModel>>> getAllTasks() async {
     try {
@@ -99,6 +104,41 @@ class TaskService {
         ServiceException(
             message: 'Erro ao deletar todas tarefas no banco local'),
       );
+    }
+  }
+
+  Future<Either<RepositoryException, List<TaskModel>>> getSyncTasks() async {
+    final result = await taskRepository.getAllTasks();
+    return result.when(
+      failure: (exception) {
+        return Failure(exception);
+      },
+      success: (value) async {
+        for (TaskModel task in value) {
+          addTask(task);
+        }
+        return Success(value);
+      },
+    );
+  }
+
+  Future<Either<RepositoryException, List<TaskModel>>> syncTasks(
+      List<TaskModel> syncTasks) async {
+    final tasksToUpload = <TaskModel>[];
+    final result = await getAllTasks();
+    switch (result) {
+      case Success(value: final tasksList):
+        final uploadList = tasksList
+            .where(
+              (element) => element.cloudId == null,
+            )
+            .toList();
+        tasksToUpload.addAll(uploadList);
+        return Success(tasksToUpload);
+      case Failure(:final exception):
+        return Failure(
+          RepositoryException(message: exception.message),
+        );
     }
   }
 }

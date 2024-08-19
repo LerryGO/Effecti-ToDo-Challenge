@@ -109,4 +109,18 @@ class TodoCubit extends Cubit<TodoState> {
     await _taskService.deleteAllCompletedTasks();
     load();
   }
+
+  Future<void> getSyncTasks() async {
+    final result = await _taskService.getSyncTasks();
+    result.when(
+      failure: (exception) {
+        emit(state.copyWith(errorMessage: exception.message));
+      },
+      success: (value) {
+        final tasks = [...state.tasks];
+        tasks.addAll(value);
+        emit(state.copyWith(status: TodoStateStatus.loaded, tasks: tasks));
+      },
+    );
+  }
 }

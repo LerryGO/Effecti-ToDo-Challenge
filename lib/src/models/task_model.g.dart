@@ -46,6 +46,11 @@ const TaskModelSchema = CollectionSchema(
       id: 5,
       name: r'title',
       type: IsarType.string,
+    ),
+    r'userId': PropertySchema(
+      id: 6,
+      name: r'userId',
+      type: IsarType.long,
     )
   },
   estimateSize: _taskModelEstimateSize,
@@ -85,6 +90,7 @@ void _taskModelSerialize(
   writer.writeDateTime(offsets[3], object.dueDate);
   writer.writeBool(offsets[4], object.isDone);
   writer.writeString(offsets[5], object.title);
+  writer.writeLong(offsets[6], object.userId);
 }
 
 TaskModel _taskModelDeserialize(
@@ -101,6 +107,7 @@ TaskModel _taskModelDeserialize(
     id: id,
     isDone: reader.readBool(offsets[4]),
     title: reader.readString(offsets[5]),
+    userId: reader.readLongOrNull(offsets[6]),
   );
   return object;
 }
@@ -124,6 +131,8 @@ P _taskModelDeserializeProp<P>(
       return (reader.readBool(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
+    case 6:
+      return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -754,6 +763,75 @@ extension TaskModelQueryFilter
       ));
     });
   }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> userIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'userId',
+      ));
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> userIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'userId',
+      ));
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> userIdEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'userId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> userIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'userId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> userIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'userId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> userIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'userId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension TaskModelQueryObject
@@ -832,6 +910,18 @@ extension TaskModelQuerySortBy on QueryBuilder<TaskModel, TaskModel, QSortBy> {
   QueryBuilder<TaskModel, TaskModel, QAfterSortBy> sortByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.desc);
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterSortBy> sortByUserId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterSortBy> sortByUserIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userId', Sort.desc);
     });
   }
 }
@@ -921,6 +1011,18 @@ extension TaskModelQuerySortThenBy
       return query.addSortBy(r'title', Sort.desc);
     });
   }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterSortBy> thenByUserId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QAfterSortBy> thenByUserIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userId', Sort.desc);
+    });
+  }
 }
 
 extension TaskModelQueryWhereDistinct
@@ -960,6 +1062,12 @@ extension TaskModelQueryWhereDistinct
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<TaskModel, TaskModel, QDistinct> distinctByUserId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'userId');
     });
   }
 }
@@ -1007,6 +1115,12 @@ extension TaskModelQueryProperty
       return query.addPropertyName(r'title');
     });
   }
+
+  QueryBuilder<TaskModel, int?, QQueryOperations> userIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'userId');
+    });
+  }
 }
 
 // **************************************************************************
@@ -1016,21 +1130,23 @@ extension TaskModelQueryProperty
 TaskModel _$TaskModelFromJson(Map<String, dynamic> json) => TaskModel(
       id: (json['id'] as num?)?.toInt(),
       title: json['title'] as String,
+      userId: (json['user_id'] as num?)?.toInt(),
       description: json['description'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      dueDate: json['dueDate'] == null
-          ? null
-          : DateTime.parse(json['dueDate'] as String),
-      isDone: json['isDone'] as bool,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      isDone: json['is_done'] as bool,
       cloudId: (json['cloudId'] as num?)?.toInt(),
+      dueDate: json['due_date'] == null
+          ? null
+          : DateTime.parse(json['due_date'] as String),
     );
 
 Map<String, dynamic> _$TaskModelToJson(TaskModel instance) => <String, dynamic>{
       'id': instance.id,
       'cloudId': instance.cloudId,
       'title': instance.title,
+      'user_id': instance.userId,
       'description': instance.description,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'dueDate': instance.dueDate?.toIso8601String(),
-      'isDone': instance.isDone,
+      'created_at': instance.createdAt.toIso8601String(),
+      'due_date': instance.dueDate?.toIso8601String(),
+      'is_done': instance.isDone,
     };

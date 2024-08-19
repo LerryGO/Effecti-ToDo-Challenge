@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:todo_challenge/src/models/user_model.dart';
 
 import '../../core/exceptions/auth_exception.dart';
 import '../../core/exceptions/repository_exception.dart';
@@ -10,6 +9,7 @@ import '../../core/fp/either.dart';
 import '../../core/fp/nil.dart';
 import '../../core/restClient/rest_client.dart';
 import '../../data/app_data.dart';
+import '../../models/user_model.dart';
 import 'user_repository.dart';
 
 class UserRepositoryImpl extends UserRepository {
@@ -65,7 +65,6 @@ class UserRepositoryImpl extends UserRepository {
   Future<Either<RepositoryException, UserModel>> getUser() async {
     try {
       final Response(:data) = await restClient.auth.get('/me');
-      print(data);
       final user = UserModel.fromJson(data);
       return Success(user);
     } on DioException catch (e, s) {

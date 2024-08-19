@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_challenge/src/features/todo/cubit/todo_cubit.dart';
 
 import '../../../data/app_data.dart';
 import '../../../routes/app_routes.dart';
@@ -44,28 +44,43 @@ class _TodoDrawerState extends State<TodoDrawer> {
               ),
               Visibility(
                 visible: data.user == null,
-                replacement: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: const Text("Sincronizar dados"),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () async {
-                        await SharedPreferencesAsync().clear();
-                        setState(() {
-                          data.user = null;
-                        });
-                      },
-                      child: const Text("Sair"),
-                    ),
-                  ],
+                replacement:
+                    BlocSelector<TodoCubit, TodoState, TodoStateStatus>(
+                  selector: (state) {
+                    return state.status;
+                  },
+                  builder: (context, state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<TodoCubit>().getSyncTasks();
+                          },
+                          child: state == TodoStateStatus.loading
+                              ? const SizedBox(
+                                  height: 24,
+                                  child: CircularProgressIndicator.adaptive(),
+                                )
+                              : const Text("Sincronizar dados"),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red),
+                          onPressed: () async {
+                            await SharedPreferencesAsync().clear();
+                            setState(() {
+                              data.user = null;
+                            });
+                          },
+                          child: const Text("Sair"),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
